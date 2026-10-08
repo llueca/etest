@@ -137,6 +137,10 @@ until runEnd
   seconds. This stays within the spec's 10 s bound.
 - **Overlapping invocations** are harmless, because settlement is idempotent
   (D5). The Lambda timeout is about 75 s.
+- **Transient errors** (throttling, a network blip) never end a run: a failed
+  pass or pending check is logged and the loop keeps polling, and within a pass
+  each player is settled independently, so a failed write leaves only that
+  prediction pending for the next pass. Logs never contain the player id.
 - **Entry point:** a single pass, `runSettlementPass(now)`, is the unit that
   is exercised. The Lambda handler loops over it. The local dev server calls it
   on an interval.

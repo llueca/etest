@@ -376,6 +376,7 @@ Superseded by section 15. Motion is now required. Per-tick price animation was d
 - [x] 19.3 Leaderboard reload after the player's own settlement or rename waits 1.5 s, because the leaderboard indexes are updated shortly after the write (design Risks: GSIs are eventually consistent). The first load, a different player and Retry stay immediate; changes in quick succession make one request. Unit tests for each case.
 - [x] 19.4 Settler Lambda memory 128 MB (was 256), so the always-busy worst case stays near 324k GB-s a month as stated in design Risks. Deploy credentials come from environment variables in a git-ignored `.env` that `scripts/deploy` loads (`.env.example` lists them; README updated). Takes effect on the next deploy.
 - [x] 19.5 Documentation corrections from the final review: design D11 names Biome (not ESLint); README package table lists the instructions feature; the `red-baseline.md` reduced-motion row points at `e2e/motion.spec.ts`; `infra/dynamodb.tf` comment points at `apps/server/src/db/players-table.ts`; duplicated word in `test-discrepancies.md`.
+- [x] 19.6 Settler resilience (second final review): a failed pass or pending check is logged and the settler loop keeps polling instead of ending the run; within a pass each due player is settled independently (`Promise.allSettled`), logging failures without the player id (design D3). Loop unit tests for both failures; contract suite unchanged and green.
 
 ## Workflow follow-up
 

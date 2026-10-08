@@ -114,5 +114,16 @@ export async function runSettlementPass(now: Date, ctx: Context = createContext(
     log({ event: "price_unavailable", due: due.length, message: error.message });
     return;
   }
-  await Promise.all(due.map((id) => settlePlayer(ctx, id, priceCents, now.getTime())));
+  // Each player independently: one failed write must not stop the others. A failure leaves that
+  // prediction pending for the next pass. The player id is a credential, so it is never logged.
+  const results = await Promise.allSettled(
+    due.map((id) => settlePlayer(ctx, id, priceCents, now.getTime())),
+  );
+  for (const result of results) {
+    if (result.status === "rejected") {
+      const message =
+        result.reason instanceof Error ? result.reason.message : String(result.reason);
+      log({ level: "error", event: "settle_failed", message });
+    }
+  }
 }
