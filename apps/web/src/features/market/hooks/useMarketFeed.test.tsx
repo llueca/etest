@@ -89,6 +89,41 @@ describe("useMarketFeed", () => {
     }
   });
 
+  it("closes and reconnects an open connection that goes silent for the stale threshold", async () => {
+    const { result } = renderHook(() => useMarketFeed(feedConfig));
+    act(() => FakeWebSocket.latest.open());
+    act(() => FakeWebSocket.latest.message(ticker("67500.00")));
+    await advance(9_999);
+    expect(result.current.connection).toBe("open");
+    expect(FakeWebSocket.instances).toHaveLength(1);
+
+    await advance(1);
+    expect(result.current.connection).toBe("reconnecting");
+    await advance(1_000);
+    expect(FakeWebSocket.instances).toHaveLength(2);
+  });
+
+  it("closes and reconnects an open connection that never delivers a valid price", async () => {
+    const { result } = renderHook(() => useMarketFeed(feedConfig));
+    act(() => FakeWebSocket.latest.open());
+    act(() => FakeWebSocket.latest.message({ type: "subscriptions" }));
+    await advance(10_000);
+    expect(result.current.connection).toBe("reconnecting");
+    await advance(1_000);
+    expect(FakeWebSocket.instances).toHaveLength(2);
+  });
+
+  it("keeps a connection that receives valid prices open", async () => {
+    const { result } = renderHook(() => useMarketFeed(feedConfig));
+    act(() => FakeWebSocket.latest.open());
+    for (let second = 0; second < 30; second++) {
+      act(() => FakeWebSocket.latest.message(ticker("67500.00")));
+      await advance(1_000);
+    }
+    expect(result.current.connection).toBe("open");
+    expect(FakeWebSocket.instances).toHaveLength(1);
+  });
+
   it("resets the backoff once data flows again", async () => {
     const { result } = renderHook(() => useMarketFeed(feedConfig));
     act(() => FakeWebSocket.latest.drop());

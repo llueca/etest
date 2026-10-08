@@ -372,6 +372,7 @@ Superseded by section 15. Motion is now required. Per-tick price animation was d
 ## 19. Final review follow-up (no new product behaviour)
 
 - [x] 19.1 Client request time limit: every API request and `config.json` is aborted after 15 s (body included) and handled as a network error, so a stalled prediction request goes through the existing unknown-outcome re-sync and startup ends in its retryable error instead of loading forever (design D7). React Testing Library tests: a prediction request that never answers shows the created prediction after 15 s; a player read that never answers shows the retryable startup error with the stored identifier kept; a `config.json` that never answers shows the configuration error.
+- [x] 19.2 Live feed recovery from a silent connection: a WebSocket that stays open without a valid price for `STALE_THRESHOLD_MS` is closed so the existing backoff reconnects it (design D9). Staleness itself is still measured from the last valid price. Unit tests (fake WebSocket and timers): a silent open connection and one that never delivers a price are reconnected; a connection receiving prices stays open. The protected e2e suite stays green (45).
 
 ## Workflow follow-up
 

@@ -66,6 +66,7 @@ export function useMarketFeed(config: FeedConfig): MarketFeed {
     let backoffMs = RECONNECT_MIN_MS;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
     let staleTimer: ReturnType<typeof setTimeout> | undefined;
+    let silenceTimer: ReturnType<typeof setTimeout> | undefined;
     let frame: number | undefined;
     let latest: Observation | null = null;
     let lastSampleAt = Number.NEGATIVE_INFINITY;
@@ -77,6 +78,16 @@ export function useMarketFeed(config: FeedConfig): MarketFeed {
         setPriceAt(latest.t);
       }
       latest = null;
+    };
+
+    // An open connection with no valid price for the stale threshold may be dead (laptop sleep,
+    // network change) or never subscribed, and no close event will come: close it so the
+    // backoff reconnects. Separate from staleTimer, which measures from the last valid price.
+    const watchForSilence = (current: WebSocket) => {
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => {
+        if (current === socket) current.close();
+      }, staleThresholdMs);
     };
 
     const onValidPrice = (cents: number) => {
@@ -98,9 +109,11 @@ export function useMarketFeed(config: FeedConfig): MarketFeed {
     };
 
     const connect = () => {
-      socket = new WebSocket(marketWsUrl);
+      const current = new WebSocket(marketWsUrl);
+      socket = current;
       socket.onopen = () => {
         setConnection("open");
+        watchForSilence(current);
         socket?.send(
           JSON.stringify({
             type: "subscribe",
@@ -111,9 +124,13 @@ export function useMarketFeed(config: FeedConfig): MarketFeed {
       };
       socket.onmessage = (event) => {
         const cents = priceFromMessage(event.data, marketProductId);
-        if (cents !== null) onValidPrice(cents);
+        if (cents !== null) {
+          onValidPrice(cents);
+          watchForSilence(current);
+        }
       };
       socket.onclose = () => {
+        clearTimeout(silenceTimer);
         if (stopped) return;
         setConnection("reconnecting");
         retryTimer = setTimeout(connect, backoffMs);
@@ -128,6 +145,7 @@ export function useMarketFeed(config: FeedConfig): MarketFeed {
       stopped = true;
       clearTimeout(retryTimer);
       clearTimeout(staleTimer);
+      clearTimeout(silenceTimer);
       if (frame !== undefined) cancelAnimationFrame(frame);
       if (socket) {
         socket.onclose = null;

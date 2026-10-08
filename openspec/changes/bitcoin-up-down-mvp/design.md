@@ -318,6 +318,10 @@ fixed; internal helpers are free.
     - holds a rolling buffer of observations sampled at most once per second
       for the chart;
     - reconnects with exponential backoff (1 s doubling to 30 s max);
+    - closes a connection that stays open without a valid price for the stale
+      threshold (a dead connection after sleep or a network change sends no
+      close event; a rejected subscription sends no prices), so the same
+      backoff reconnects it;
     - batches high-frequency ticks to one render per animation frame.
   - **Game/player state:** loaded from `/api/me`.
     - Polling happens only while `Resolving…`, every 2 s by default.
