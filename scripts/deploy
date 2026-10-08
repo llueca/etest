@@ -6,6 +6,14 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Credentials for the target account come from a git-ignored .env (see .env.example).
+# Environment credentials take precedence over AWS CLI profiles for both Terraform and the AWS CLI.
+if [ -f .env ]; then
+  set -a
+  . ./.env
+  set +a
+fi
+
 [ -f infra/backend.hcl ] || { echo "infra/backend.hcl is missing (copy infra/backend.hcl.example)" >&2; exit 1; }
 
 pnpm build

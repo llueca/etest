@@ -23,7 +23,7 @@ A pnpm workspace (monorepo). Both apps are organised by feature.
 
 | Package | Contents |
 |---|---|
-| `apps/web` (`@btc/web`) | React + Vite SPA, plain CSS, Recharts. `src/app` (App, Game layout), `src/features/{player,market,predictions,progress,leaderboards}/{components,hooks}`, `src/components/ui`, `src/hooks`, `src/lib` (API client, config, formatting), `src/test`. No store, router or data-fetching library. |
+| `apps/web` (`@btc/web`) | React + Vite SPA, plain CSS, Recharts. `src/app` (App, Game layout), `src/features/{player,market,predictions,progress,leaderboards,instructions}`, `src/components/ui`, `src/hooks`, `src/lib` (API client, config, formatting), `src/test`. No store, router or data-fetching library. |
 | `apps/server` (`@btc/server`) | One Hono app (`src/app.ts`) that runs unchanged on Lambda and locally. `src/features/{players,predictions,leaderboards,settlement}` (routes, store, views; settlement pass and loop), `src/http`, `src/market`, `src/db`, `src/entrypoints` (Lambda handlers, local dev server). |
 | `packages/shared` (`@btc/shared`) | `domain.ts`: every business rule as pure functions (browser live status and server settlement); `config.ts`: configuration validation. |
 
@@ -111,6 +111,16 @@ tests, written independently of the implementation; see `openspec/changes/bitcoi
 
 Prerequisites: AWS credentials, the AWS CLI, Terraform ≥ 1.10, and an S3 bucket for Terraform state (created once,
 below; not managed by Terraform).
+
+**Credentials** come from environment variables, kept in a git-ignored `.env`:
+
+```sh
+cp .env.example .env            # fill in AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (and AWS_SESSION_TOKEN if temporary)
+set -a; . ./.env; set +a        # for the one-time commands below; scripts/deploy loads .env by itself
+```
+
+Use an IAM user or role with deploy permissions, never the account root. Each AWS account needs its own state bucket and
+`infra/backend.hcl`.
 
 **One-time: create the state bucket** (not managed by Terraform; versioned so a damaged state can be recovered):
 

@@ -110,7 +110,8 @@ resource "aws_lambda_function" "settler" {
   handler          = "index.handler"
   filename         = data.archive_file.settler.output_path
   source_code_hash = data.archive_file.settler.output_base64sha256
-  memory_size      = 256
+  # Mostly waits on network calls; 128 MB keeps the always-busy worst case near 324k GB-s a month.
+  memory_size = 128
   # The loop runs for up to 60 s (design D3).
   timeout = 75
 
