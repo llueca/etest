@@ -286,6 +286,11 @@ fixed; internal helpers are free.
     error. If that re-fetch fails too after a network error or a `409`, a
     prediction may exist that the page cannot see: UP/DOWN stay blocked, with a
     "Check again" button, until a read succeeds.
+  - Every request (including `config.json`) has a 15 s limit, body included.
+    That is above the API Lambda's 10 s timeout plus a cold start, so it only
+    cuts off answers that are not coming (e.g. a stalled connection). Reaching
+    it counts as a network error, so a stalled prediction request is
+    reconciled like any other unknown outcome.
   - Responses may arrive out of order: a read is shown only if it started
     after the state currently on screen, and a prediction or rename response
     always beats reads that were in flight when it arrived.

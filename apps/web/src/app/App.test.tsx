@@ -1,6 +1,6 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FakeWebSocket, json, mockApi, player, webConfig, withServerTime } from "../test/utils.ts";
 import { App } from "./App.tsx";
 
@@ -100,6 +100,33 @@ describe("startup", () => {
     expect(statLines()).toContain("Score: 7");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("stored");
     expect(calls.some((c) => c.route === "POST /api/players")).toBe(false);
+  });
+
+  it("gives up on a player request that never answers after 15 s, keeping the identifier", async () => {
+    vi.useFakeTimers();
+    localStorage.setItem(STORAGE_KEY, "stored");
+    const calls = mockApi({
+      "GET /config.json": () => json(webConfig),
+      "GET /api/me": () => new Promise<Response>(() => {}),
+    });
+    render(<App />);
+    // Let config.json and the start of the player request resolve before moving the clock far.
+    await act(() => vi.advanceTimersByTimeAsync(100));
+    await act(() => vi.advanceTimersByTimeAsync(14_800));
+    expect(screen.getByText("Loading your player…")).toBeInTheDocument();
+
+    await act(() => vi.advanceTimersByTimeAsync(200));
+    expect(screen.getByText("Your progress could not be loaded")).toBeInTheDocument();
+    expect(localStorage.getItem(STORAGE_KEY)).toBe("stored");
+    expect(calls.some((c) => c.route === "POST /api/players")).toBe(false);
+  });
+
+  it("shows the configuration error when config.json never answers", async () => {
+    vi.useFakeTimers();
+    mockApi({ "GET /config.json": () => new Promise<Response>(() => {}) });
+    render(<App />);
+    await act(() => vi.advanceTimersByTimeAsync(15_100));
+    expect(screen.getByText("The game is not configured correctly")).toBeInTheDocument();
   });
 
   it("keeps the identifier when the server answers with an error status", async () => {

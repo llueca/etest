@@ -1,6 +1,8 @@
 // Typed client for the HTTP API (design D7). Every response carries the server's
 // clock, from which a device clock offset is derived.
 
+import { fetchJson, type JsonResponse } from "./http.ts";
+
 export type Direction = "up" | "down";
 
 export interface PlayerView {
@@ -91,9 +93,9 @@ async function request<T>(
   options: { method?: string; token?: string; body?: unknown } = {},
 ): Promise<ApiResult<T>> {
   const sentAt = Date.now();
-  let response: Response;
+  let result: JsonResponse;
   try {
-    response = await fetch(path, {
+    result = await fetchJson(path, {
       method: options.method ?? "GET",
       headers: {
         ...(options.token ? { authorization: `Bearer ${options.token}` } : {}),
@@ -102,10 +104,13 @@ async function request<T>(
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     });
   } catch (error) {
+    // Offline, a dropped connection, or no response within REQUEST_TIMEOUT_MS: the outcome is unknown.
     throw new NetworkError(error instanceof Error ? error.message : "Network error");
   }
-  const receivedAt = Date.now();
-  const payload = await response.json().catch(() => undefined);
+  const { response, receivedAt } = result;
+  const payload = result.payload as
+    | { error?: { code?: string; message?: string }; serverTime?: string }
+    | undefined;
   if (!response.ok) {
     throw new ApiError(
       response.status,
@@ -114,7 +119,7 @@ async function request<T>(
     );
   }
   if (!payload) throw new NetworkError("Unreadable response");
-  const serverTime = Date.parse(payload.serverTime);
+  const serverTime = Date.parse(payload.serverTime ?? "");
   // Compare against the midpoint of the round trip to cancel out latency.
   const offsetMs = Number.isFinite(serverTime) ? serverTime - (sentAt + receivedAt) / 2 : 0;
   return { data: payload as T, offsetMs };

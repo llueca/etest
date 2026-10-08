@@ -369,6 +369,10 @@ Superseded by section 15. Motion is now required. Per-tick price animation was d
 
 - [x] 18.4 An older read of the player no longer overwrites newer state (review pass 3). In `useGame.ts` reads are numbered when they start and shown only if newer than what is on screen; a prediction or rename takes a number when its response arrives, so it beats reads still in flight. A skipped read still returns its data to the caller. Two React Testing Library tests release held `GET /api/me` answers out of order (RED first: both failed after the older answer arrived, then green): an older "pending" read after a newer "settled" one, and a read started before a new prediction. All suites green: unit 153, acceptance 60, contract 32, e2e 45; protected checksums unchanged.
 
+## 19. Final review follow-up (no new product behaviour)
+
+- [x] 19.1 Client request time limit: every API request and `config.json` is aborted after 15 s (body included) and handled as a network error, so a stalled prediction request goes through the existing unknown-outcome re-sync and startup ends in its retryable error instead of loading forever (design D7). React Testing Library tests: a prediction request that never answers shows the created prediction after 15 s; a player read that never answers shows the retryable startup error with the stored identifier kept; a `config.json` that never answers shows the configuration error.
+
 ## Workflow follow-up
 
 - Run `/opsx-verify` against the specs, then archive the change once review requirements are met.

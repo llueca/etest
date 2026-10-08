@@ -180,6 +180,26 @@ describe("placing a prediction", () => {
     expect(screen.queryByText(/could not start/i)).not.toBeInTheDocument();
   });
 
+  it("treats a prediction request that never answers as an unknown outcome after 15 s", async () => {
+    const world = startWorld();
+    world.place = () => {
+      // The server created the prediction, but its answer never arrives.
+      world.me.activePrediction = prediction(Date.now() + 55_000);
+      return new Promise<Response>(() => {});
+    };
+    await mount(world);
+    await goLive();
+
+    await click(up());
+    await flush(14_900);
+    expect(up()).toHaveAccessibleDescription("Starting your prediction…");
+
+    await flush(200);
+    expect(screen.getByText("Entry price: $67,500.00")).toBeInTheDocument();
+    expect(up()).toHaveAccessibleDescription("A prediction is in progress.");
+    expect(screen.queryByText(/could not start/i)).not.toBeInTheDocument();
+  });
+
   describe("when the outcome is unknown and the re-sync fails too", () => {
     /** The request is lost, then the connection stays down: the server state is not known. */
     const offlineAfterLostRequest = async (created: boolean) => {

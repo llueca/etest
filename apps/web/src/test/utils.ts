@@ -97,7 +97,17 @@ export function mockApi(routes: Record<string, Handler>) {
       calls.push({ route, body, token });
       const handler = routes[route];
       if (!handler) throw new Error(`unexpected request: ${route}`);
-      return handler({ body, token });
+      // Like a browser: aborting the signal rejects the request, even if the server never answers.
+      const signal = init.signal;
+      if (!signal) return handler({ body, token });
+      return Promise.race([
+        handler({ body, token }),
+        new Promise<never>((_, reject) => {
+          const abort = () => reject(new DOMException("The operation was aborted.", "AbortError"));
+          if (signal.aborted) abort();
+          else signal.addEventListener("abort", abort, { once: true });
+        }),
+      ]);
     }),
   );
   return calls;
