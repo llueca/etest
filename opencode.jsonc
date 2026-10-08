@@ -1,0 +1,121 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Default interactive implementation model.
+  "model": "opencode/claude-sonnet-5-5",
+  "default_agent": "mvp-builder",
+
+  "permissions": [
+    // Skills are project-owned and intentionally available to agents.
+    {
+      "action": "skill",
+      "resource": "*",
+      "effect": "allow"
+    },
+
+    // Agents may delegate work unless they restrict this further themselves.
+    {
+      "action": "subagent",
+      "resource": "*",
+      "effect": "allow"
+    },
+
+    // Shell commands require approval by default.
+    {
+      "action": "shell",
+      "resource": "*",
+      "effect": "ask"
+    },
+
+    // Safe Git inspection.
+    {
+      "action": "shell",
+      "resource": "git status*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git diff*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git log*",
+      "effect": "allow"
+    },
+
+    // Routine verification commands.
+    {
+      "action": "shell",
+      "resource": "npm test*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "npm run test*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "npm run lint*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "npm run typecheck*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "pnpm test*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "pnpm run test*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "pnpm run lint*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "pnpm run typecheck*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "yarn test*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bun test*",
+      "effect": "allow"
+    },
+
+    // Destructive Git operations stay blocked.
+    {
+      "action": "shell",
+      "resource": "git push*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "git reset --hard*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "git clean*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "git commit*",
+      "effect": "ask"
+    }
+  ]
+}

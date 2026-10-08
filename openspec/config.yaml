@@ -1,0 +1,119 @@
+schema: spec-driven
+
+context: |
+  Product target:
+    Build a small, coherent, production-quality MVP.
+
+  Engineering approach:
+    - Correct product behaviour comes first.
+    - Prefer simple solutions with explicit trade-offs.
+    - Architecture must remain proportional to current requirements.
+    - Avoid speculative extensibility and premature abstraction.
+    - Prefer vertical slices where practical.
+    - Keep important domain rules explicit and testable.
+    - Do not build infrastructure for hypothetical future scale.
+
+  Behaviour-first development:
+    - Core requirements should have executable behavioural tests before their production implementation.
+    - Behavioural tests are authored independently from production implementation.
+    - Acceptance tests constrain WHAT the product does without unnecessarily constraining HOW it is implemented.
+    - A meaningful RED baseline must be established before implementing the corresponding behaviour.
+    - A test is meaningfully RED only when it fails because required behaviour is missing.
+    - Implementation agents must not weaken behavioural tests merely to make them pass.
+    - Specification/test disagreements must be surfaced explicitly.
+
+  Protected behavioural suites:
+    - tests/acceptance/
+    - tests/contract/
+    - e2e/
+
+  Product quality:
+    - The MVP should feel complete rather than merely functional.
+    - Loading, empty, validation, success and failure states should be considered where relevant.
+    - Accessibility and responsive behaviour are part of frontend quality.
+    - Visual polish should improve clarity or usability rather than add decoration.
+
+  Architecture:
+    - Prefer the minimum number of layers necessary to keep responsibilities clear.
+    - Backend complexity should remain proportional to the actual domain.
+    - Frontend architecture should favour clear state ownership and composable UI.
+    - Introduce patterns because the current problem demands them, not to demonstrate their use.
+
+  Documentation:
+    - Capture meaningful trade-offs, assumptions and deliberate omissions.
+    - Do not document obvious implementation details.
+
+rules:
+  proposal:
+    - State the core MVP outcome clearly.
+    - Include explicit non-goals where they prevent likely scope creep.
+    - Separate required behaviour from optional improvements.
+    - Prefer the smallest product scope that still feels complete.
+
+  specs:
+    - Express requirements through observable product behaviour.
+    - Make important acceptance criteria executable through concrete scenarios.
+    - Cover important domain invariants, validation and failure behaviour.
+    - Avoid prescribing implementation structure unless it is part of the product contract.
+
+  design:
+    - Explain meaningful architectural choices and their trade-offs.
+    - Identify stable behavioural seams that may legitimately be exercised by pre-implementation tests.
+    - Avoid prescribing internal classes or abstractions merely to make them testable.
+    - Explicitly identify complexity that has intentionally been left out of the MVP.
+    - Prefer the simplest persistence and API design that satisfies the requirements.
+
+  tasks:
+    - The first implementation phase for core behaviour must establish an independent RED behavioural baseline.
+    - Behavioural-test authoring must be separate from production implementation.
+    - Production implementation must follow the RED baseline, not precede it.
+    - Prefer vertically sliced implementation tasks.
+    - Add implementation-level unit tests only when they provide additional confidence beyond acceptance tests.
+    - Keep optional polish separate from required MVP tasks.
+
+operations:
+  apply:
+    guidance:
+      - Confirm that the relevant independent behavioural tests exist before implementing core behaviour.
+      - Confirm that their RED state is meaningful before writing the corresponding production code.
+      - Do not modify protected acceptance, contract or end-to-end tests to make implementation pass.
+      - Work in small RED -> GREEN -> REFACTOR increments.
+      - Run focused verification before the broader suite.
+      - Surface specification/test conflicts instead of silently resolving them in code.
+      - Once the changes are complete and tests pass, update README.md if necessary.
+
+  archive:
+    guidance:
+      - Summarize meaningful product and architectural trade-offs.
+      - Mention deliberate MVP omissions only when they help explain the resulting design.
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

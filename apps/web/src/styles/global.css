@@ -1,0 +1,582 @@
+:root {
+  --bg: #0e1621;
+  --panel: #16212f;
+  --panel-2: #1c2a3b;
+  --border: #2b3a4d;
+  --text: #e8eef5;
+  --muted: #a9b9cb;
+  --up: #3ddc97;
+  --up-ink: #052116;
+  --down: #ff8a94;
+  --down-ink: #2a0a0e;
+  --accent: #7cc4ff;
+  --warn: #ffd166;
+  --focus: #ffd166;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    16px / 1.5 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  overflow-wrap: anywhere;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h2 {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h3 {
+  font-size: 1rem;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+}
+
+.top h1 {
+  font-size: 1.25rem;
+}
+
+.top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.name-current {
+  font-weight: 600;
+}
+
+.name-saved {
+  color: var(--up);
+}
+
+.name-error {
+  flex-basis: 100%;
+}
+
+.name-input {
+  min-width: 0;
+  width: 14rem;
+  max-width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.name-input[aria-invalid="true"] {
+  border-color: var(--down);
+}
+
+.layout {
+  display: grid;
+  gap: 1rem;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+  .market {
+    grid-column: 1;
+  }
+  .play {
+    grid-column: 1;
+  }
+  .stats-card {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .boards-card {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.price {
+  font-size: clamp(2rem, 9vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.price--empty {
+  color: var(--muted);
+}
+
+.price--stale {
+  color: var(--muted);
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+}
+
+.feed-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.5rem;
+  color: var(--muted);
+}
+
+.feed-dot {
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--warn);
+}
+
+.feed-status[data-fresh="true"] .feed-dot {
+  background: var(--up);
+}
+
+.chart {
+  margin: 0;
+}
+
+.chart-box {
+  position: relative;
+  height: 240px;
+  min-width: 0;
+}
+
+/* Over the bottom strip of the plot: left = price axis width, right = chart margin. */
+.time-axis {
+  position: absolute;
+  left: 64px;
+  bottom: 0;
+  width: calc(100% - 72px);
+  height: 30px;
+  overflow: visible;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.hint {
+  min-height: 1.5rem;
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+.btn {
+  min-height: 3rem;
+  padding: 0.6rem 1rem;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.btn-up {
+  background: var(--up);
+  color: var(--up-ink);
+}
+
+.btn-down {
+  background: var(--down);
+  color: var(--down-ink);
+}
+
+.btn-quiet {
+  min-height: 2.5rem;
+  background: var(--panel-2);
+  border-color: var(--muted);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #06233a;
+}
+
+.instructions {
+  width: min(34rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--text);
+}
+
+.instructions[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.instructions::backdrop {
+  background: rgb(5 10 18 / 0.75);
+}
+
+.instructions-title {
+  padding: 1rem 1.25rem 0.5rem;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+}
+
+.instructions-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 1.25rem;
+  overflow-y: auto;
+}
+
+.instructions-body ol {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.instructions-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.75rem 1.25rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.instructions-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.instructions-check input {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Holds the room for the active view and for the result card, so settlement moves nothing below. */
+.play-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 10rem;
+}
+
+.status-panel {
+  min-height: 7.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.error {
+  color: var(--down);
+  font-weight: 600;
+}
+
+.status-panel .btn {
+  align-self: flex-start;
+}
+
+.invitation {
+  color: var(--muted);
+}
+
+.active-direction strong {
+  font-size: 1.25rem;
+}
+
+.active-entry {
+  font-variant-numeric: tabular-nums;
+}
+
+.resolving {
+  color: var(--warn);
+  font-weight: 700;
+}
+
+.progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Brief colour change on WINNING/LOSING/TIED. The text itself changes at once. */
+.status {
+  transition: color 250ms ease;
+}
+
+.status--winning {
+  color: var(--up);
+}
+
+.status--losing {
+  color: var(--down);
+}
+
+.status--tied {
+  color: var(--warn);
+}
+
+.result {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border-left: 6px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The result fades in once. Opacity and transform only, so nothing else moves. */
+.result {
+  animation: result-in 250ms ease-out;
+}
+
+@keyframes result-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.result--win {
+  border-left-color: var(--up);
+}
+
+.result--loss {
+  border-left-color: var(--down);
+}
+
+.result-head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.result-outcome {
+  font-size: 1.5rem;
+}
+
+.result--win .result-outcome,
+.result--win .result-delta {
+  color: var(--up);
+}
+
+.result--loss .result-outcome,
+.result--loss .result-delta {
+  color: var(--down);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat-label {
+  color: var(--muted);
+}
+
+.stat-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.boards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.board {
+  min-width: 0;
+}
+
+.board h3 {
+  margin-bottom: 0.4rem;
+}
+
+.rows {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  gap: 0.25rem 0.5rem;
+  align-items: baseline;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.row--me {
+  background: var(--panel-2);
+  outline: 1px solid var(--accent);
+}
+
+.row-position {
+  color: var(--muted);
+}
+
+.row-value {
+  font-weight: 700;
+}
+
+.row-detail {
+  grid-column: 2 / -1;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.you {
+  margin-left: 0.25rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.75rem;
+}
+
+.board-empty,
+.board-loading,
+.board-note,
+.own {
+  color: var(--muted);
+}
+
+.own {
+  margin-top: 0.5rem;
+}
+
+.board-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.message {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  max-width: 32rem;
+  margin: 4rem auto;
+  padding: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status {
+    transition: none;
+  }
+
+  .result {
+    animation: none;
+  }
+}

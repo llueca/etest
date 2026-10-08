@@ -1,0 +1,9 @@
+{
+  "name": "@btc/shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./domain": "./src/domain.ts",
+    "./config": "./src/config.ts"
+  }
+}

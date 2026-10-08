@@ -1,0 +1,6 @@
+# This directory is its own pnpm root, so a parent workspace is never picked up.
+packages:
+  - apps/*
+  - packages/*
+allowBuilds:
+  esbuild: true

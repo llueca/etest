@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Build -> terraform apply -> sync the SPA to S3 -> invalidate the files that change in place.
+# Prerequisites (see README): AWS credentials, the AWS CLI, Terraform, and infra/backend.hcl
+# pointing at an existing state bucket. Extra arguments go to `terraform apply`
+# (e.g. scripts/deploy -auto-approve).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+[ -f infra/backend.hcl ] || { echo "infra/backend.hcl is missing (copy infra/backend.hcl.example)" >&2; exit 1; }
+
+pnpm build
+
+terraform -chdir=infra init -input=false -backend-config="$PWD/infra/backend.hcl"
+terraform -chdir=infra apply "$@"
+
+# Do not depend on the AWS CLI's configured default region. AWS CLI v1 reads AWS_DEFAULT_REGION, not AWS_REGION.
+export AWS_DEFAULT_REGION="$(terraform -chdir=infra output -raw region)"
+
+bucket="$(terraform -chdir=infra output -raw web_bucket)"
+distribution="$(terraform -chdir=infra output -raw distribution_id)"
+
+# Hashed assets can be cached for a year. config.json belongs to Terraform, so sync must not delete it.
+aws s3 sync apps/web/dist "s3://$bucket" --delete --exclude config.json --exclude index.html \
+  --cache-control "public,max-age=31536000,immutable"
+aws s3 cp apps/web/dist/index.html "s3://$bucket/index.html" --cache-control "no-cache"
+
+aws cloudfront create-invalidation --distribution-id "$distribution" --paths /index.html /config.json >/dev/null
+
+echo "Deployed: $(terraform -chdir=infra output -raw url)"

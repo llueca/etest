@@ -1,0 +1,6 @@
+# Copy to backend.hcl (git-ignored) and fill in. The state bucket is a prerequisite
+# and is not managed by this module.
+bucket       = "my-terraform-state-bucket"
+key          = "btc-up-down/terraform.tfstate"
+region       = "eu-central-1"
+use_lockfile = true

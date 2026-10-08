@@ -1,0 +1,10 @@
+{
+  // Repo-level code: behavioural tests, the test harness and tool configs.
+  // Each workspace package has its own tsconfig (see the `typecheck` script).
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"]
+  },
+  "include": ["tests", "e2e", "*.ts"]
+}

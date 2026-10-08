@@ -1,0 +1,38 @@
+{
+  "name": "btc-up-down",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "packageManager": "pnpm@12.5.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @btc/server --filter @btc/web dev",
+    "db:up": "docker compose up -d --wait dynamodb",
+    "db:down": "docker compose down",
+    "db:create-table": "pnpm --filter @btc/server db:create-table",
+    "build": "pnpm --filter @btc/web --filter @btc/server build",
+    "typecheck": "tsc --noEmit -p packages/shared && tsc --noEmit -p apps/server && tsc --noEmit -p apps/web && tsc --noEmit",
+    "lint": "biome check .",
+    "test": "pnpm test:unit && pnpm test:acceptance && pnpm test:contract && pnpm test:e2e",
+    "test:unit": "vitest run --project unit --project web",
+    "test:acceptance": "vitest run --project acceptance",
+    "test:contract": "vitest run --project contract",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1146.0",
+    "@axe-core/playwright": "^4.13.0",
+    "@biomejs/biome": "^2.5.15",
+    "@btc/server": "workspace:*",
+    "@btc/shared": "workspace:*",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.4",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3",
+    "ws": "^8.22.0"
+  }
+}

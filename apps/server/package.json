@@ -1,0 +1,26 @@
+{
+  "name": "@btc/server",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./settlement": "./src/features/settlement/settlement.ts",
+    "./dev-server": "./src/entrypoints/dev-server.ts",
+    "./players-table": "./src/db/players-table.ts"
+  },
+  "scripts": {
+    "dev": "tsx src/entrypoints/dev.ts",
+    "build": "tsx scripts/build.ts",
+    "db:create-table": "tsx scripts/create-table.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1146.0",
+    "@aws-sdk/lib-dynamodb": "^3.1146.0",
+    "@btc/shared": "workspace:*",
+    "@hono/node-server": "^2.1.3",
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15"
+  }
+}
