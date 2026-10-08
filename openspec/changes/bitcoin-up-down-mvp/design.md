@@ -731,8 +731,9 @@ one-per-second sample, so it lagged behind the headline price by up to a second.
   free tier.
 - **GSIs are eventually consistent.** A leaderboard reloaded right after
   settlement may lag by about a second.
-  → Acceptable for a non-realtime leaderboard. The player's own statistics
-  come from a strongly consistent read.
+  → The reload that follows the player's own settlement or rename waits
+  1.5 s, so it normally sees the new values; the first load and Retry are
+  immediate. The player's own statistics come from a strongly consistent read.
 - **Constant GSI partition keys cap write throughput** at roughly 1,000
   updates/s.
   → Orders of magnitude above MVP needs. Write sharding is intentionally

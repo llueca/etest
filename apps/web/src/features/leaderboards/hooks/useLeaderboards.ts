@@ -8,18 +8,23 @@ export interface Leaderboards {
 }
 
 /**
+ * After the player's own settlement or rename, the leaderboard indexes are updated a moment
+ * after the write (DynamoDB GSIs are eventually consistent), so the reload waits this long.
+ */
+export const INDEX_SETTLE_MS = 1_500;
+
+/**
  * Loads both leaderboards. They are not streamed: they reload when `reloadKey`
- * changes (the player's settlement or rename) and on retry. Previous data stays
- * visible while reloading.
+ * changes (the player's settlement or rename, after INDEX_SETTLE_MS) and on retry.
+ * Previous data stays visible while reloading.
  */
 export function useLeaderboards(token: string | undefined, reloadKey: string): Leaderboards {
   const [data, setData] = useState<LeaderboardsResponse | null>(null);
   const [status, setStatus] = useState<Leaderboards["status"]>("loading");
-  const [attempt, setAttempt] = useState(0);
   const latest = useRef(0);
+  const loadedFor = useRef<{ token: string | undefined } | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: reloadKey and attempt are the reload triggers
-  useEffect(() => {
+  const load = useCallback(() => {
     const request = ++latest.current;
     setStatus((current) => (current === "ready" ? current : "loading"));
     getLeaderboards(token)
@@ -31,12 +36,24 @@ export function useLeaderboards(token: string | undefined, reloadKey: string): L
       .catch(() => {
         if (request === latest.current) setStatus("error");
       });
-  }, [token, reloadKey, attempt]);
+  }, [token]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reloadKey is the reload trigger
+  useEffect(() => {
+    // First load, or a different player: nothing was just written, load now.
+    if (loadedFor.current?.token !== token || loadedFor.current === null) {
+      loadedFor.current = { token };
+      load();
+      return;
+    }
+    const timer = setTimeout(load, INDEX_SETTLE_MS);
+    return () => clearTimeout(timer);
+  }, [load, reloadKey]);
 
   const retry = useCallback(() => {
     setStatus("loading");
-    setAttempt((n) => n + 1);
-  }, []);
+    load();
+  }, [load]);
 
   return { data, status, retry };
 }
