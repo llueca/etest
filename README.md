@@ -1,4 +1,4 @@
-# BTC Up/Down
+# BTC Predictor
 
 Anonymous players predict whether BTC/USD will be **higher or lower after the prediction window** (60 s by default),
 watch a live price and chart, and are scored +1/−1 by the server. Two Top-10 leaderboards rank
