@@ -13,8 +13,7 @@ Found while making `e2e/` green. The protected tests were **not** modified, and 
 was **not** bent to satisfy them. Each item needs an explicit decision: fix the test (by its
 author) or amend the spec.
 
-Result at the time of discovery: 23 of 25 e2e tests passing, 2 failing for the reasons below.
-below. All other protected suites are green (acceptance 60/60, contract 23/23).
+Result at the time of discovery: 23 of 25 e2e tests passing, 2 failing for the reasons below. All other protected suites are green (acceptance 60/60, contract 23/23).
 
 ## 1. Race in `predictions › shows UP winning one cent above entry and live status unavailable when stale` (e2e line 243)
 

@@ -1,4 +1,4 @@
-# One item per player (design D4). Same shape as scripts/table.ts for DynamoDB Local.
+# One item per player (design D4). Same shape as apps/server/src/db/players-table.ts for DynamoDB Local.
 resource "aws_dynamodb_table" "players" {
   name         = "${var.name}-players"
   billing_mode = "PAY_PER_REQUEST"

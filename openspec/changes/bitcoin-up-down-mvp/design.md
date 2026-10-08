@@ -456,7 +456,7 @@ tests/integration  implementation-level tests that need the local stack
     entry label) with fixed dimensions or a stubbed `ResizeObserver`.
 - Playwright, plus `@axe-core/playwright`. The axe dependency is justified
   by the contrast/accessibility scenario in the spec.
-- ESLint (typescript-eslint) and `tsc --noEmit`.
+- Biome (lint and formatting, recommended rules) and `tsc --noEmit` per package.
 - esbuild bundles each Lambda handler. Vite builds the SPA.
 - `docker compose` runs DynamoDB Local for contract and e2e tests.
 
@@ -727,8 +727,8 @@ one-per-second sample, so it lagged behind the headline price by up to a second.
 - **The settler is a Lambda that loops for up to a minute** (unusual
   pattern).
   → Documented here and in the README. Idle invocations exit immediately. The
-  worst-case cost (continuous play) is about 324k GB-s per month, within the
-  free tier.
+  worst-case cost (continuous play, 128 MB) is about 324k GB-s per month,
+  within the free tier.
 - **GSIs are eventually consistent.** A leaderboard reloaded right after
   settlement may lag by about a second.
   → The reload that follows the player's own settlement or rename waits

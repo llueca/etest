@@ -101,7 +101,7 @@ the implementing task (not protected), **M** = manual verification.
 | Colour never the only signal | text assertions throughout E; **M** greyscale check |
 | Announcements; no flood | E announces politely…; RTL 10.1 (once per event, silent on ticks) |
 | Visible focus; contrast | E axe contrast scan; **M** focus indicator check |
-| Reduced motion | **M** (only exercised once optional polish 12.1 exists) |
+| Reduced motion | `e2e/motion.spec.ts` (task 15.1, see below) |
 | Real mobile device | **M** task 10.2 |
 
 ## Notes for implementation
